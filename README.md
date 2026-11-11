@@ -1,5 +1,6 @@
 # 某Player 1.8.11 的 EV2、Canvas 渲染与音频播放
 (ev1已有标准解法出现，实测为混淆，故本文不再阐述)
+<br>
 这版播放器把工作分给了三个地方。**EV2 插件 WASM 把文件字节还原为 FLV，播放 WASM 把 FLV 中的 H.264 和 AAC 解成画面与声音，JS 把画面交给 WebGL、把声音交给 Web Audio。** 因此，要看压缩视频数据、解码后的像素、最终画布上的颜色，需要在三个不同位置观察。
 
 下文对应提供的 `bplayer.js`、`ffplayer.js`、`combine-flv-h264-aac.wasm`、以 `04bd74e2` 开头的 Worker，以及播放器引用的 1.8.11 版 EV2 插件。实测使用随附的合成 EV2。真实平台 EV2 文件的兼容性仍待验证。
@@ -422,3 +423,9 @@ ffprobe -v error -read_intervals "%+#8" -show_packets -show_entries packet=strea
 第一条应出现 `09 00 1d 71 00 00 15 00 00 00 00 17 01 00 00 00`。第二条中，`pos=400` 的音频包大小为 226，`pos=643` 的首个视频包大小为 7532。这样即使没有真实平台 EV2，也能独立对照文件布局、Java 输出和浏览器回调。
 
 本次播放 WASM 的 SHA-256 为 `78d805e271cb653d1c5ee3ad25f044c7d8989a265383b1809a358000dcdc9549`，EV2 插件为 `f6afd51d52f1362711920e86ceb4a72c7ac314014e15c9325788adfc1ad7dbde`。
+<br>
+### listVideoKeyFrame 接口:
+
+listVideoKeyFrame 用来按视频 ID 获取进度条上的内容标记，比如课程里的知识点。`bplayer.js` 用 POST 调用它，请求体是 vid=<视频ID>。
+
+播放器拿到 data.list 后，会把每条记录的 time_offset 换算成秒，再按“标记时间 ÷ 视频总时长”把圆点放到进度条上。`description` 和 image 用于显示标记卡片，点击标记可以跳到对应播放时间。
