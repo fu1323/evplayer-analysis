@@ -1,5 +1,5 @@
-# BPlayer 1.8.11 的 EV2 解密、Canvas 渲染与音频播放
-
+# 某Player 1.8.11 的 EV2、Canvas 渲染与音频播放
+(ev1已有标准解法出现，实测为混淆，故本文不再阐述)
 这版播放器把工作分给了三个地方。**EV2 插件 WASM 把文件字节还原为 FLV，播放 WASM 把 FLV 中的 H.264 和 AAC 解成画面与声音，JS 把画面交给 WebGL、把声音交给 Web Audio。** 因此，要看压缩视频数据、解码后的像素、最终画布上的颜色，需要在三个不同位置观察。
 
 下文对应提供的 `bplayer.js`、`ffplayer.js`、`combine-flv-h264-aac.wasm`、以 `04bd74e2` 开头的 Worker，以及播放器引用的 1.8.11 版 EV2 插件。实测使用随附的合成 EV2。真实平台 EV2 文件的兼容性仍待验证。
@@ -10,10 +10,6 @@
 
 把 JAR 和样例放在同一目录，在该目录运行。需要 Java 17 或以上版本。两个子命令都离线运行，只使用 JDK 标准库。
 
-```sh
-java -jar BjCloudTool.jar url "bjcloudvod://A2l5fXp1QDY6aHxpeXFxbjhldXQ6ZDJtgjNEfUcz"
-java -jar BjCloudTool.jar ev2 example.ev2 restored.flv
-```
 
 第一条应输出 `https://example.com/a.ev2?t=1`。第二条应生成 **163682 字节**的 FLV。可以将第一条的整个参数替换为你的 `enc_url`。要处理自己的 EV2，把第二条的输入和输出路径一起替换，输出目录须存在，输出文件名须尚未使用。
 
